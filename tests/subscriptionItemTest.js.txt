@@ -1,0 +1,54 @@
+console.log('starting test');
+var chai = require('chai');
+var chaiHttp = require('chai-http');
+var async = require('async');
+
+var assert = chai.assert;
+var expect = chai.expect;
+var should = chai.should();
+
+var http = require('http');
+chai.use(chaiHttp);
+
+if (!global.Promise) {
+  var q = require('q');
+  chai.request.addPromises(q.Promise);
+}
+
+describe('Test server with no arguments', function () {
+	this.timeout(15000);
+	  
+    it('should return 200', function (done) {
+      http.get('http://localhost:8080/app/item/1', function (res) {
+        assert.equal(200, res.statusCode);
+        done();
+      });
+    });	
+
+    it('should return a json object', function (done) {
+      http.get('http://localhost:8080/app/item/1', function (res) {
+        expect(res).to.be.json; 
+        done();
+      });
+    });	
+
+    
+	it('should return one subscriptionItem object', function(done){
+		chai.request('http://localhost:8080')
+		 .get('/app/item/1')
+		 .end(function (err, res) {
+			expect(err).to.be.null;
+			expect(res.body).to.have.property('listId').that.is.a('number');
+      expect(res.body).to.have.property('itemId').that.is.a('number');
+			expect(res.body).to.have.property('serviceName').that.is.a('string');
+			expect(res.body).to.have.property('addDate').that.is.a('string');
+			expect(res.body).to.have.property('dueDate').that.is.a('string');
+			expect(res.body).to.have.property('price').that.is.a('number');
+			expect(res.body).to.have.property('isArchived').that.is.a('boolean');
+			expect(res.body).to.have.property('subscriptionType').that.is.a('string');
+			done();
+		 });
+	});
+});
+
+ 
